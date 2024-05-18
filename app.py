@@ -5,9 +5,9 @@ import os
 
 flag = 1 ## to prevent repeated fetching attempts resulting in None in subsequent tries when retrieving name
 name = ""
-palm.configure(api_key="AIzaSyBNcJHHPXNyx92yh6rvIvjzUXC8E2zi6-M")
-os.environ["REPLICATE_API_TOKEN"] = "r8_KlPitzlwOM8VZebt3IeEWdK0UTrimQ20KiMGx"
 
+makersuite_api = os.getenv("MAKERSUITE_API_TOKEN")
+palm.configure(api_key=makersuite_api)
 
 model = {"model" : "models/chat-bison-001"}
 app = Flask(__name__)
