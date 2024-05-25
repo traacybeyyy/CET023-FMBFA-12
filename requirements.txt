@@ -1,4 +1,6 @@
-flask
+flask == 2.3.1
 gunicorn
 replicate
 google-generativeai
+pysqlite3
+markupsafe
