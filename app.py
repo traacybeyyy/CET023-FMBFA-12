@@ -2,6 +2,10 @@ from flask import Flask, render_template, request
 import google.generativeai as palm
 import replicate
 import os 
+import sqlite3 
+import datetime 
+# from flask import Markup
+from markupsafe import Markup 
 
 flag = 1 ## to prevent repeated fetching attempts resulting in None in subsequent tries when retrieving name
 name = ""
@@ -21,6 +25,13 @@ def main():
     global flag, name 
     if flag == 1: ## fetch once only so that when returning to main page it will still be there
         name = request.form.get("q") ## get the name (input)  ## receive what front end post to backend. random convention: frontend = q, backend = r. refer to PyPi to find out the naming convention
+        current_time = datetime.datetime.now()
+        conn = sqlite3.connect('log.db')
+        c = conn.cursor()
+        c.execute("insert into user (name, time) values (?,?)", (name ,current_time))
+        conn.commit()
+        c.close()
+        conn.close()
         flag = 0 
     return(render_template("main.html", r=name)) ## right r = r above (backend), left r is the frontend r  
 
@@ -54,6 +65,30 @@ def image_result():
                     input = {"prompt":q}
                     )
     return(render_template("image_result.html", r=r[0])) 
+
+@app.route("/log", methods=["GET","POST"]) 
+def log(): 
+    conn = sqlite3.connect('log.db')
+    c = conn.cursor()
+    c.execute("select * from user")
+    r = ""
+    for row in c:
+       r += str(row) + "<br>"
+    print(r)
+    r = Markup(r)
+    c.close()
+    conn.close()
+    return(render_template("log.html", r=r)) 
+
+@app.route("/delete", methods=["GET","POST"]) 
+def delete(): 
+    conn = sqlite3.connect('log.db')
+    c = conn.cursor()
+    c.execute("delete from user")
+    conn.commit()
+    c.close()
+    conn.close()
+    return(render_template("delete.html")) 
 
 @app.route("/end", methods=["GET","POST"]) 
 def end(): 
